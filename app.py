@@ -151,17 +151,28 @@ else:
 
     st.title("♻️ Smart Waste Detection System")
 
-    # WEBCAM INTERFACE
+   # WEBCAM INTERFACE
     if source_radio == "Webcam (Live)":
         st.subheader("Live Desktop Streaming")
+        
         def video_frame_callback(frame):
             img = frame.to_ndarray(format="bgr24")
             results = model(img, conf=conf_level)
             return av.VideoFrame.from_ndarray(results[0].plot(), format="bgr24")
 
-        webrtc_streamer(key="stream", video_frame_callback=video_frame_callback,
-                        media_stream_constraints={"video": True, "audio": False})
-
+        # --- EDITED SECTION START ---
+        webrtc_streamer(
+            key="stream", 
+            video_frame_callback=video_frame_callback,
+            rtc_configuration={
+                "iceServers": [
+                    {"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}
+                ]
+            },
+            media_stream_constraints={"video": True, "audio": False},
+            async_processing=True,
+        )
+        # --- EDITED SECTION END ---
     # IMAGE UPLOAD INTERFACE
     elif source_radio == "Image Upload":
         st.subheader("File Analysis")
